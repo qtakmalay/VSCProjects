@@ -2,9 +2,9 @@ def gen_range(start: int, stop: int, step: int = 1):
     try:
         
         if step == 0:
-            raise ValueError
+            raise ValueError("Value Error")
         elif isinstance(start, float) or isinstance(stop, float):
-            raise TypeError
+            raise TypeError("Type Error")
         else:
             if step > 0:
                 while start < stop:
