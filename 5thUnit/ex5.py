@@ -4,12 +4,13 @@ def f(x: int):
         print("f1")
     except TypeError:
         print("f2")
-        raise print(KeyError)
+        print("ErrorC") 
+        raise KeyError 
     except ValueError:
         print("f3")
     else:
         print("f4")
-        print("f5")
+    print("f5")
 def g(x: int):
     try:
         h(x)
@@ -17,24 +18,28 @@ def g(x: int):
     except TypeError:
         print("g2")
         if x < -10:
-            print(KeyError)
-            #raise print(KeyError)
+            print("ErrorC") 
+            raise KeyError 
         print("g3")
     finally:
         print("g4")
 def h(x: int):
     try:
         if x < 0:
-            print(TypeError)
+            print("ErrorA") 
+            raise TypeError
         if x > 10:
-            print(ValueError)
+            print("ErrorB") 
+            raise ValueError
     finally:
         print("h1")
-        print("h2")
-print(f(1))
-print("----------------------")
-print(f(-1))
-print("----------------------")
-print(f(15))
-print("----------------------")
-print(f(-15))
+print("h2")
+
+
+f(1)
+print("--------")
+f(-1)
+print("--------")
+f(15)
+print("--------")
+# f(-15)

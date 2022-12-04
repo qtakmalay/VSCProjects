@@ -1,5 +1,4 @@
-
-f(1) -> h1 h2 g1 g4 f1 f4 f5
-f(-1) -> h1 h2 g2 g3 g4 f1 f4 f5
-f(15) -> h1 h2 g4 f3
-f(-15) -> g1 h2 f3 ErrorA
+f(1) -> h2 h1 g1 g4 f1 f4 f5
+f(-1) -> ErrorA h1 g2 g3 g4 f1 f4 f5
+f(15) -> ErrorB h1 g4 f3 f5
+f(-15) -> h2 ErrorA h1 g2 ErrorC g4 f3 f5
