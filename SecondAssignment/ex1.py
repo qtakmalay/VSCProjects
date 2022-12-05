@@ -17,7 +17,7 @@
 
 
 #   Read the age as integer value (you can assume correct user input)
-age_inp= input("Enter age: ")
+age_inp= int(input("Enter age: "))
 tikts_vals = (10, 15, 20, 25, 30)
 
 #   If the age is negative, print the error message Invalid age
