@@ -20,5 +20,3 @@ def get_abs_paths(root_path: str, ext_filter: str = None) -> list:
             return list_dirs
     except ValueError as ex:
         print(f"We caught the exception '{ex}'")
-            
-
