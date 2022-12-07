@@ -14,7 +14,14 @@ def read_dict(path: str, encoding: str = "utf-8") -> dict:
     dict_new = dict()
     for line in fl_reader:
         temp_list = str(line).split()
-        dict_new.update({temp_list[0]:temp_list[1]})
+        try:
+            dict_new.update({temp_list[0]:int(temp_list[1])})
+        except:
+            try:
+                dict_new.update({temp_list[0]:float(temp_list[1])})
+            except:
+                dict_new.update({temp_list[0]:str(temp_list[1])})
+            
     return dict_new
 
 file_ex2 = "ex2_data.txt"
