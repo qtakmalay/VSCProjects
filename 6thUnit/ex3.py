@@ -1,21 +1,21 @@
-def binary_search(elements: list, x) -> bool:
-    half_list = elements.copy()
-    mid_val = half_list[int(len(half_list)/2)]
+import os, glob
+
+def get_abs_paths(root_path: str, ext_filter: str = None):
     try:
-        if not isinstance(x, str):
-            if x == mid_val:
-                return True
-            if len(half_list) == 1 and not x == mid_val:
-                return False  
-            if x < mid_val:
-                del half_list[int(len(half_list)/2) : int(len(half_list))]
-                mid_val = half_list[int(len(half_list)/2)]
-                return binary_search(half_list, x)
-            else:
-                del half_list[ : int(len(half_list)/2)]
-                mid_val = half_list[int(len(half_list)/2)]
-                return binary_search(half_list, x)
+        if(ext_filter == None):
+            list_dirs = glob.glob(os.path.join(root_path, "**"), recursive=True)
+            list_dirs.sort()
+            for val in list_dirs:
+                print(val)
         else:
-            return False
-    except TypeError:
-        return False
+            list_dirs = glob.glob(os.path.join(root_path, "**", "*.py"), recursive=True)
+            list_dirs.sort()
+            for val in list_dirs:
+                print(val)
+        if root_path.isdir():
+            raise ValueError
+    except ValueError as ex:
+        print(f"We caught the exception '{ex}'")
+            
+
+get_abs_paths("C:\\Users\\azatv\\")
