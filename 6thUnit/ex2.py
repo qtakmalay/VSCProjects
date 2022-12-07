@@ -1,19 +1,26 @@
-def gen_range(start: int, stop: int, step: int = 1):
-    try:
-        
-        if step == 0:
-            raise ValueError("Value Error")
-        elif isinstance(start, float) or isinstance(stop, float):
-            raise TypeError("Type Error")
-        else:
-            if step > 0:
-                while start < stop:
-                    yield start
-                    start += step 
-            if step < 0:
-                while int(start) > int(stop):
-                    yield start
-                    start += step 
- 
-    except (TypeError, ValueError) as ex:
-        print(f"We caught the exception '{ex}'")
+import os
+
+def write_dict(d: dict, path: str, encoding: str = "utf-8"):
+    ab_path = os.path.dirname(__file__)
+    fl_reader = open(os.path.join(ab_path, path), "w")
+    for key, value in d.items():  # Instead of: key_value tuple
+        fl_reader.write(str(key)+" "+str(value)+"\n")
+    
+
+
+def read_dict(path: str, encoding: str = "utf-8") -> dict:
+    ab_path = os.path.dirname(__file__)
+    fl_reader = open(os.path.join(ab_path, path), "r")
+    dict_new = dict()
+    for line in fl_reader:
+        temp_list = str(line).split()
+        dict_new.update({temp_list[0]:temp_list[1]})
+    return dict_new
+
+file_ex2 = "ex2_data.txt"
+dict_ex2 = {"stringkey": 55, "foo" : 43}
+write_dict(dict_ex2, "ex2_data.txt")
+print(read_dict(file_ex2))
+new_dict = read_dict(file_ex2)
+if(dict_ex2 == new_dict):
+    print("True") # This must evaluate to True

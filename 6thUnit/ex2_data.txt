@@ -1,0 +1,2 @@
+stringkey 55
+foo 43
