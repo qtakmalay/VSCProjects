@@ -5,26 +5,41 @@ class  Complex:
         self.real = real
         self.imaginary = imaginary  
 
-    def abs(self) -> float:
-        return math.sqrt(pow(self.real, 2) + pow(self.imaginary, 2))
+    def __abs__(self) -> float:
+        return math.sqrt(self.real**2 + self.imaginary**2)
 
     def __eq__(self, other):
         if isinstance(other, Complex):
             return self.real == other.real and self.imaginary == other.imaginary
-        raise NotImplemented
+        return NotImplemented
 
     def __repr__(self):
-        raise NotImplementedError
+        return f"Complex(real={self.real}, imaginary={self.imaginary})"
+
     def __str__(self):
         sign=""
-        if self.imaginary > 0: sign = "+"
-        print(f"{self.real}{sign}{self.imaginary}i")
+        if self.imaginary >= 0: sign = "+"
+        return f"{self.real}{sign}{self.imaginary}i"
+        
     def __add__(self, other):
-        raise NotImplementedError
+        if isinstance(other, Complex):
+            return Complex(self.real + other.real, self.imaginary + other.imaginary)
+        return NotImplemented
+
     def __iadd__(self, other):
-        raise NotImplementedError
+        if isinstance(other, Complex):
+            return self + other
+        return NotImplemented
+
+    @staticmethod
     def add_all(comp: "Complex", *comps: "Complex") -> "Complex":
-        raise NotImplementedError
+        try:
+            if not (any(isinstance(x, Complex) for x in comps)): raise TypeError
+            for comp_i in comps:
+                comp += comp_i
+            return comp
+        except TypeError:
+            print('TypeError : can only add %s, not %s' % ("Complex", type(comps[0])) )   
 
 c1 = Complex(-1, -2)
 c2 = Complex(2, 4)
