@@ -19,7 +19,7 @@ class  Complex:
             self.imaginary += other.imaginary
         except TypeError as ex:
             print(ex)
-    @classmethod
+    @staticmethod
     def add_all(comp: "Complex", *comps: "Complex") -> "Complex":
         try:
             if not (any(isinstance(x, Complex) for x in comps)): raise TypeError
@@ -30,15 +30,15 @@ class  Complex:
         except TypeError:
             print('TypeError : can only add %s, not %s' % ("Complex", type(comps[0])) )    
 
-# c1 = Complex(1.0, -2.0)
-# c1.print()
-# c2 = Complex(9.0, 100.0)
-# c1.add(c2)
-# c1.print()
-# c_sum = Complex.add_all(c1, c1, c2, Complex(33.75, -14.25))
-# c_sum.print()
-# c1.print()
-# will_fail = Complex.add_all(100)
+c1 = Complex(1.0, -2.0)
+c1.print()
+c2 = Complex(9.0, 100.0)
+c1.add(c2)
+c1.print()
+c_sum = Complex.add_all(c1, c1, c2, Complex(33.75, -14.25))
+c_sum.print()
+c1.print()
+will_fail = Complex.add_all(100)
 
 
 
