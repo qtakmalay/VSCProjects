@@ -6,7 +6,7 @@ class Aggregator:
         self.ignore_errors = ignore_errors
         self.sum = None
     def __call__(self, *args):
-        if args.__len__() == 0: return self.sum
+        if not args: return self.sum
         for arg in args:
             if isinstance(arg, self.agg_type):
                 if self.sum is None:
