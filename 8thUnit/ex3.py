@@ -19,13 +19,13 @@ class Aggregator:
             
 
 
-int_agg = Aggregator(agg_type=int)
-int_agg(1, 2, 3)
-int_agg(4, "hi", 5.1)
-print(int_agg())
-str_agg = Aggregator(agg_type=str, ignore_errors=False)
-print(str_agg("this", " ", "is a test"))
-try:
-    str_agg(1)
-except TypeError as e:
-    print(f"{type(e).__name__}: {e}")
+# int_agg = Aggregator(agg_type=int)
+# int_agg(1, 2, 3)
+# int_agg(4, "hi", 5.1)
+# print(int_agg())
+# str_agg = Aggregator(agg_type=str, ignore_errors=False)
+# print(str_agg("this", " ", "is a test"))
+# try:
+#     str_agg(1)
+# except TypeError as e:
+#     print(f"{type(e).__name__}: {e}")

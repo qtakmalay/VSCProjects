@@ -21,17 +21,17 @@ class Reader:
                 raise IndexError("Point index out of range")
         raise TypeError(f"Point indices must be integers, not {type(key).__name__}")
 
-r = Reader("C:\\Users\\azatv\\VSCProjects\\8thUnit\\ex2_data.txt")
-print(os.path.getsize(r.path))
-# print(r.__len__)
-print(r[0])
-print(r[1])
-print(r[-1])
-try:
-    r["hi"]
-except TypeError as e:
-    print(f"{type(e).__name__}: {e}")
-try:
-    r[100]
-except IndexError as e:
-    print(f"{type(e).__name__}: {e}")
+# r = Reader("ex2_data.txt")
+# print(os.path.getsize(r.path))
+# # print(r.__len__)
+# print(r[0])
+# print(r[1])
+# print(r[-1])
+# try:
+#     r["hi"]
+# except TypeError as e:
+#     print(f"{type(e).__name__}: {e}")
+# try:
+#     r[100]
+# except IndexError as e:
+#     print(f"{type(e).__name__}: {e}")

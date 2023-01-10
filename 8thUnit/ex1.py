@@ -41,18 +41,18 @@ class  Complex:
         except TypeError:
             print('TypeError : can only add %s, not %s' % ("Complex", type(comps[0])) )   
 
-c1 = Complex(-1, -2)
-c2 = Complex(2, 4)
-c3 = Complex(1, 2)
-print(c1 == c3, c1 + c2 == c3)
-print(repr(c1))
-print(c1)
-print(abs(c1))
-print(c1 + c2)
-c1 += c3
-print(c1)
-print(Complex.add_all(c2, c2, c3))
-try:
-    c1 + 1
-except TypeError as e:
-    print(f"{type(e).__name__}: {e}")
+# c1 = Complex(-1, -2)
+# c2 = Complex(2, 4)
+# c3 = Complex(1, 2)
+# print(c1 == c3, c1 + c2 == c3)
+# print(repr(c1))
+# print(c1)
+# print(abs(c1))
+# print(c1 + c2)
+# c1 += c3
+# print(c1)
+# print(Complex.add_all(c2, c2, c3))
+# try:
+#     c1 + 1
+# except TypeError as e:
+#     print(f"{type(e).__name__}: {e}")
