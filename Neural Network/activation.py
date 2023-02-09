@@ -1,5 +1,5 @@
 from layer import Layer
-
+import numpy as np
 class Activation(Layer):
     def __init__(self, activation, activation_prime):
         self.activation = activation
