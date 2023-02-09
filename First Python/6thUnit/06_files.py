@@ -358,7 +358,7 @@ found_files.sort()
 # https://docs.python.org/3/library/pickle.html
 # https://dill.readthedocs.io/en/latest/ (not installed by default)
 
-# import pickle  # This is the original "pickle" module, but we will use "dill"
+import pickle  # This is the original "pickle" module, but we will use "dill"
 import dill as pickle  # "dill" has the same interface as "pickle"
 
 some_dict = dict(a=1, b=2, c=3)
@@ -381,7 +381,7 @@ my_objects = dict(
 
 # To write our pickled objects to a file (serialization), we need to open it in
 # byte mode "b" (i.e., no encoding is used, just the raw bytes are stored):
-with open("my_objects.pkl", "wb") as f:
+with open("my_objects.txt", "wb") as f:
     # This will store our pickled "my_objects" dictionary o the specified file
     pickle.dump(my_objects, f)
 
