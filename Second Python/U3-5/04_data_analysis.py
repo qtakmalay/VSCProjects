@@ -34,7 +34,7 @@ and structure). Start by working on a small version of your dataset.
 # folders, each with 100 images, i.e., 1000 images in total.
 
 # Path to the dataset (unzip the "04_images.zip" archive)
-input_path = "04_images"
+input_path = "Second Python\\U3-5\\04_images\\"
 
 #
 # Let's start by taking a look at our data by reading in one file
