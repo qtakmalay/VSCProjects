@@ -21,13 +21,14 @@ def to_grayscale(pil_image: np.ndarray) -> np.ndarray:
 
     if np.issubdtype(pil_image.dtype, np.integer):
         result = np.round(result).astype(pil_image.dtype)
+
     return result
 
 
 input_path = "C:\\Users\\azatv\\VSCProjects\\Second Python\\U3-5\\04_images"
 image_files = sorted(glob.glob(os.path.join(input_path, "**", "*.jpg"), recursive=True))
 print("Filename: ",os.path.basename(image_files[0]))
-with Image.open("C:\\Users\\azatv\\VSCProjects\\Second Python\\U3-5\\04_images\\000\\SeaLake_1034.jpg") as im:  # This returns a PIL image
+with Image.open(image_files[0]) as im:  # This returns a PIL image
     image = np.array(im)  # We can convert it to a numpy array
     print("SHAPE:", image.shape)
 print("image data:")
