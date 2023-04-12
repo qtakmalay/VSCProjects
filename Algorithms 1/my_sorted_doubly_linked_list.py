@@ -208,7 +208,29 @@ class MySortedDoublyLinkedList:
 
     def remove_duplicates(self) -> None:
         """Remove all duplicate occurrences of values from the list."""
-        # TODO
+
+        if self._size == 0:
+            return
+        cur = self._head
+        rem_status = False
+        while cur:
+            print("0 ", self)
+            next = cur.next_node
+            while next:
+                print("1 ", self)
+                if cur.elem == next.elem:
+                    next.prev_node.next_node = next.next_node
+                    
+                    print("2 ", self)
+                    if next.next_node != None:
+                        next.next_node.prev_node = next.prev_node
+                        print("3 ", self)
+                    self._size -= 1
+                next = next.next_node
+                print("4 ", self)
+            
+            cur = cur.next_node
+            print("5 ", self._size)
 
     def filter_n_max(self, n: int) -> None:
         """Filter the list to only contain the 'n' highest values.
@@ -219,7 +241,7 @@ class MySortedDoublyLinkedList:
         Raises:
             ValueError: If the passed value n is not an int or out of range.
         """
-        # TODO
+        
 
     def filter_odd(self) -> None:
         """Filter the list to only contain odd values."""
