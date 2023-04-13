@@ -237,21 +237,21 @@ class MySortedDoublyLinkedList:
         if not isinstance(n, int) or n < 1 or self._size < 1 or n > self._size :
             raise ValueError
         else:
-            print("0 Start of NMAX", self)
+            #print("0 Start of NMAX", self)
 
             cur = self._head
             i = 0
             while cur:
-                print("1 ", self)
+                #print("1 ", self)
                 if i+1 <= self._size - n:
-                    print("2 ", self)
+                    #print("2 ", self)
                     self._head = cur.next_node
                     cur = self._head
                     self._size -= 1
                 else:
                     i += 1
                     cur = cur.next_node
-                print("3 ", self)
+                #print("3 ", self)
 
     def filter_odd(self) -> None:
         """Filter the list to only contain odd values."""
