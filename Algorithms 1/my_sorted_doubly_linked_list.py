@@ -86,14 +86,7 @@ class MySortedDoublyLinkedList:
         Raises:
             ValueError: If val is not an int.
         """
-        # new_node = MyListNode(val)
-        # if self.size == 0:
-        #     self._head = new_node
-        #     self._tail = new_node
-        # if val < self._head.elem:
-        #     new_node.next_node = self._head
-        #     self._head = new_node
-        #     self._head.next_node =  
+
         if not isinstance(val, int):
             raise ValueError("Value should be an integer.")
 
@@ -214,23 +207,23 @@ class MySortedDoublyLinkedList:
         cur = self._head
         rem_status = False
         while cur:
-            print("0 ", self)
+            #print("0 ", self)
             next = cur.next_node
             while next:
-                print("1 ", self)
+                #print("1 ", self)
                 if cur.elem == next.elem:
                     next.prev_node.next_node = next.next_node
                     
-                    print("2 ", self)
+                    #print("2 ", self)
                     if next.next_node != None:
                         next.next_node.prev_node = next.prev_node
-                        print("3 ", self)
+                        #print("3 ", self)
                     self._size -= 1
                 next = next.next_node
-                print("4 ", self)
+                #print("4 ", self)
             
             cur = cur.next_node
-            print("5 ", self._size)
+            #print("5 ", self._size)
 
     def filter_n_max(self, n: int) -> None:
         """Filter the list to only contain the 'n' highest values.
@@ -241,8 +234,46 @@ class MySortedDoublyLinkedList:
         Raises:
             ValueError: If the passed value n is not an int or out of range.
         """
-        
+        if not isinstance(n, int) or n < 1 or self._size < 1 or n > self._size :
+            raise ValueError
+        else:
+            print("0 Start of NMAX", self)
+
+            cur = self._head
+            i = 0
+            while cur:
+                print("1 ", self)
+                if i+1 <= self._size - n:
+                    print("2 ", self)
+                    self._head = cur.next_node
+                    cur = self._head
+                    self._size -= 1
+                else:
+                    i += 1
+                    cur = cur.next_node
+                print("3 ", self)
 
     def filter_odd(self) -> None:
         """Filter the list to only contain odd values."""
-        # TODO
+        try:
+            if self._size == 0:
+                return False
+            cur = self._head
+            rem_status = False
+            while cur:
+                if cur.elem%2 == 0:
+                    rem_status = True
+                    if cur.prev_node:
+                        cur.prev_node.next_node = cur.next_node
+                    else:
+                        self._head = cur.next_node
+                    if cur.next_node:
+                        cur.next_node.prev_node = cur.prev_node
+                    else:
+                        self._tail = cur.prev_node
+                    self._size -= 1
+                cur = cur.next_node
+            return rem_status
+
+        except ValueError as ex:
+            raise ex
