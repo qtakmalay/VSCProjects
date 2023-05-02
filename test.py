@@ -1,17 +1,14 @@
-numbers = [1, 2, 0, 2, 0, 0, 1, 2, 0, 0, 2, 1, 2, 2, 2, 1, 1, 1, 1, 6, 0, 2, 0, 2, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 3, 3]
-
-
-# Create a dictionary to store the counts for each unique number
-count_dict = {}
-
-# Loop through the array and update the counts in the dictionary
-for num in numbers:
-    if num in count_dict:
-        count_dict[num] += 1
-    else:
-        count_dict[num] = 1
-
-# Print out the counts for each unique number
-for num, count in count_dict.items():
-    print(f"{num} occurs {count} times")
-    print(f"{num} rel fre {count/len(numbers)}")
+# Creating a recursive function  
+def tower_of_hanoi(disks, source, auxiliary, target):  
+    if(disks == 1):  
+        print('Move disk 1 from rod {} to rod {}.'.format(source, target))  
+        return  
+    # function call itself  
+    tower_of_hanoi(disks - 1, source, target, auxiliary)  
+    print('Move disk {} from rod {} to rod {}.'.format(disks, source, target))  
+    tower_of_hanoi(disks - 1, auxiliary, source, target)  
+  
+  
+disks = int(input('Enter the number of disks: '))  
+# We are referring source as A, auxiliary as B, and target as C  
+tower_of_hanoi(disks, 'A', 'B', 'C')  # Calling the function  
