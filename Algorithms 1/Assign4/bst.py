@@ -81,8 +81,7 @@ class BinarySearchTree:
     @property
     def size(self) -> int:
         """Return number of nodes contained in the tree."""
-        pass
-        # TODO
+        return self._size
 
     # If users instead call `len(tree)`, this makes it return the same as `tree.size`
     __len__ = size 
@@ -157,7 +156,6 @@ class BinarySearchTree:
     def inorder(self, node: TreeNode = None) -> Generator[TreeNode, None, None]:
         """Yield nodes in inorder."""
         node = node or self._root
-        # This is needed in the case that there are no nodes.
         if not node:
             return iter(())
         yield from self._inorder(node)
