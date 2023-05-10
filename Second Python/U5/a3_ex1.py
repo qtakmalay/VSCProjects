@@ -4,7 +4,7 @@ from torch.utils.data import Dataset
 from PIL import Image
 from tqdm import tqdm
 from typing import Optional
-import a2_ex2 as im_proc_f
+import a3_ex2 as im_proc_f
 
 def to_grayscale(pil_image: np.ndarray) -> np.ndarray:
     if pil_image.ndim == 2:
@@ -72,4 +72,14 @@ ds = RandomImagePixelationDataset(
     height_range=(10, 60),
     size_range=(2, 10)
 )
-
+for pixelated_image, known_array, target_array, image_file in ds:
+    fig, axes = plt.subplots(ncols=3)
+    axes[0].imshow(pixelated_image[0], cmap="gray", vmin=0, vmax=255)
+    axes[0].set_title("pixelated_image")
+    axes[1].imshow(known_array[0], cmap="gray", vmin=0, vmax=1)
+    axes[1].set_title("known_array")
+    axes[2].imshow(target_array[0], cmap="gray", vmin=0, vmax=255)
+    axes[2].set_title("target_array")
+    fig.suptitle(image_file)
+    fig.tight_layout()
+plt.show()
