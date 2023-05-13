@@ -505,7 +505,7 @@ class UnitTestTemplate(unittest.TestCase):
     def test_runtime_comparison_check_list_with_pregen_list(self):
         test_list = None
         try:
-            test_list = create_list_from_file("testListWithoutDuplicates.txt")
+            test_list = create_list_from_file("C:\\Users\\azatv\\VSCProjects\\Algorithms 1\\Assign4\\testListWithoutDuplicates.txt")
         except FileNotFoundError:
             print("@Tutor: runtimeComparison() could not be tested as testfile could not be loaded "
                   "(testListWithoutDuplicates.txt). Pls check path and test again.")
