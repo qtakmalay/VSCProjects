@@ -38,12 +38,14 @@ def get_highest_score(input_file: str):
 
     file_name = ""
     highest_score = None
-    for line in lines:
+    for i, line in enumerate(lines):
         if "FileName" in line:
             file_name = line.strip()
         elif "Score:" in line:
             score = float(re.search(r"Score:\s+([\d.]+)", line).group(1))
             if highest_score is None or score > highest_score:
+                print(file_name)
+                print(score)
                 highest_score = score
 
     return file_name, highest_score
@@ -60,7 +62,6 @@ def remove_timestamps(input_file: str, output_file: str):
     timestamp_pattern = r"\d+:\d+"
     content_without_timestamps = re.sub(timestamp_pattern, "", content)
     content_without_timestamps = content_without_timestamps.replace("//n","")
-    print(content_without_timestamps)
     with open(output_file, 'w+') as file:
         file.write(content_without_timestamps)
 
@@ -83,7 +84,6 @@ def find_positive_ramdas(directory: str):
             for line in lines:
                 if "Ramda" in line:
                     ramda_value = float(re.search(r"Ramda = ([\d.]+)", line).group(1))
-                    print(line)
                     if ramda_value > 0:
                         positive_ramdas[file] = ramda_value
                         break
@@ -100,5 +100,5 @@ if __name__ == "__main__":
     print("Highest Score:", highest_score)
     positive_ramdas = find_positive_ramdas(directory)
     print("Files with Ramda > 0:", positive_ramdas)
-    remove_timestamps(input_script, output_script)
+    #remove_timestamps(input_script, output_script)
 
