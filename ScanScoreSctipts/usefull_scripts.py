@@ -21,12 +21,8 @@ def filter_txt_file(input_file: str, output_file: str):
             filtered_lines.append(line.strip())
         elif "Y values:" in line:
             filtered_lines.append(line.strip())
-
     with open(output_file, 'w') as file:
         file.write("\n".join(filtered_lines))
-
-
-
 
 def get_highest_score(input_file: str):
     """Method to search for the highest score.
@@ -35,7 +31,6 @@ def get_highest_score(input_file: str):
         """
     with open(input_file, 'r') as file:
         lines = file.readlines()
-
     file_name = ""
     highest_score = None
     for i, line in enumerate(lines):
@@ -47,7 +42,6 @@ def get_highest_score(input_file: str):
                 print(file_name)
                 print(score)
                 highest_score = score
-
     return file_name, highest_score
 
 def remove_timestamps(input_file: str, output_file: str):
@@ -64,10 +58,6 @@ def remove_timestamps(input_file: str, output_file: str):
     content_without_timestamps = content_without_timestamps.replace("//n","")
     with open(output_file, 'w+') as file:
         file.write(content_without_timestamps)
-
-
-
-
 
 def find_positive_ramdas(directory: str):
     """Looks for positive Ramda values and puts them to a list from txt.
@@ -89,9 +79,6 @@ def find_positive_ramdas(directory: str):
                         break
 
     return positive_ramdas
-
-
-
 
 if __name__ == "__main__":
     filter_txt_file(input_filename, output_filename)
