@@ -1,4 +1,4 @@
-import torch 
+import torch
 
 class SimpleCNN(torch.nn.Module):
     def __init__(
@@ -11,49 +11,31 @@ class SimpleCNN(torch.nn.Module):
     kernel_size: int = 3,
     activation_function: torch.nn.Module = torch.nn.ReLU()
     ):
-        """CNN, consisting of ``num_hidden_layers`` linear layers, using relu
-        activation function in the hidden CNN layers.
-        
-        Parameters
-        ----------
-        input_channels: int -- input_channels
-            Number of features channels in input tensor
-            hidden_channels: specifies the number of feature channels
-        num_hidden_layers: int -- num_hidden_layers
-            Number of hidden layers
-
-        use_batch_normalization controls whether 2-dimensional batch normalization is used
-
-        num_classes specifies the number of output neurons of the fully-connected
-
-        activation_function specifies which non-linear activation function is used
-
-        n_hidden_kernels: int -- kernel_size
-            Number of kernels in each hidden layer
-        n_output_channels: int
-            Number of features in output tensor
-        """
         super().__init__()
         
         hidden_layers = []
         for _ in range(num_hidden_layers):
             # Add a CNN layer
-            layer = torch.nn.Conv2d(in_channels=input_channels, out_channels=hidden_channels, kernel_size= kernel_size//2)
+            layer = torch.nn.Conv2d(in_channels=input_channels, out_channels=hidden_channels, kernel_size= kernel_size, padding=kernel_size//2)
             hidden_layers.append(layer)
+            if use_batchnormalization: 
+                hidden_layers.append(torch.nn.BatchNorm2d(hidden_channels))
             # Add relu activation module to list of modules
             hidden_layers.append(activation_function)
-            if use_batchnormalization: hidden_layers.append(torch.nn.BatchNorm2d(hidden_channels))
+            
             input_channels = hidden_channels
-        
-        self.hidden_layers = torch.nn.Sequential(*hidden_layers)
-        self.output_layer = torch.nn.Conv2d(in_channels=input_channels, out_channels=num_classes, kernel_size=kernel_size)
+        hidden_layers.append(torch.nn.AdaptiveAvgPool2d((1, 1)))
+        self.conv = torch.nn.Sequential(*hidden_layers)
+        # in_features: int,
+        # out_features: int,
+        self.output_layer = torch.nn.Linear(in_features=input_channels, out_features=num_classes)
     
     def forward(self, input_images: torch.Tensor):
-        """Apply CNN to ``x``.
+        """Apply CNN to ``input_images``.
         
         Parameters
         ----------
-        x: torch.Tensor
+        input_images: torch.Tensor
             Input tensor of shape ``(n_samples, input_channels, height, width)``
         
         Returns
@@ -63,12 +45,10 @@ class SimpleCNN(torch.nn.Module):
         """
 
         # Apply hidden layers module
-        hidden_features = self.hidden_layers(input_images)
-        #hidden_features[1]
-        # Apply last layer (=output layer)
-        output = self.output_layer(hidden_features)
-        output = torch.Tensor.flatten(start_dim=4, end_dim=2)
-        return output
+        x = self.conv(input_images)
+        x = x.view(x.size(0), -1)
+        x = self.output_layer(x)
+        return x
 
 
 
