@@ -16,7 +16,7 @@ class SimpleCNN(torch.nn.Module):
         hidden_layers = []
         for _ in range(num_hidden_layers):
             # Add a CNN layer
-            layer = torch.nn.Conv2d(in_channels=input_channels, out_channels=hidden_channels, kernel_size= kernel_size, padding=kernel_size//2)
+            layer = torch.nn.Conv2d(in_channels=input_channels, out_channels=hidden_channels, padding_mode="zeros",kernel_size= kernel_size, padding=kernel_size//2)
             hidden_layers.append(layer)
             if use_batchnormalization: 
                 hidden_layers.append(torch.nn.BatchNorm2d(hidden_channels))
@@ -26,8 +26,7 @@ class SimpleCNN(torch.nn.Module):
             input_channels = hidden_channels
         hidden_layers.append(torch.nn.AdaptiveAvgPool2d((1, 1)))
         self.conv = torch.nn.Sequential(*hidden_layers)
-        # in_features: int,
-        # out_features: int,
+
         self.output_layer = torch.nn.Linear(in_features=input_channels, out_features=num_classes)
     
     def forward(self, input_images: torch.Tensor):
