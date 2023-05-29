@@ -87,7 +87,7 @@ print(f"trainable_param.grad (reset):\n{trainable_param.grad}")
 # such as stochastic gradient descent (SGD) or the Adam optimizer. We only have
 # to supply a list of trainable parameters and specify optimizer-specific
 # hyperparameters such as the learning rate.
-
+print("---------------------------------------------------------------")
 # Assume we want our output value to be 1:
 output = trainable_param.sum() * 2
 target = torch.tensor(1, dtype=torch.float32)

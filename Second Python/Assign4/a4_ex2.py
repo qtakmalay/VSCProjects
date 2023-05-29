@@ -16,7 +16,11 @@ class SimpleCNN(torch.nn.Module):
         hidden_layers = []
         for _ in range(num_hidden_layers):
             # Add a CNN layer
-            layer = torch.nn.Conv2d(in_channels=input_channels, out_channels=hidden_channels, padding_mode="zeros",kernel_size= kernel_size, padding=kernel_size//2)
+#padding - This is the number of pixels added to each side of the input. This can be used to preserve the spatial dimensions of the input 
+# (i.e., the width and height remain the same before and after the convolution)
+# . The value is typically set to kernel_size // 2 when the stride is 1 to maintain the same width and height.
+# padding_mode - This defines the type of padding. If it's set to "zeros", then the input will be padded with zeros (also known as zero-padding).
+            layer = torch.nn.Conv2d(in_channels=input_channels, out_channels=hidden_channels, padding_mode="zeros",kernel_size = kernel_size, padding=kernel_size//2)
             hidden_layers.append(layer)
             if use_batchnormalization: 
                 hidden_layers.append(torch.nn.BatchNorm2d(hidden_channels))
