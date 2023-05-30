@@ -39,7 +39,7 @@ def training_loop(
     loss_function = torch.nn.MSELoss()
     optimizer = torch.optim.Adam(network.parameters(), lr=1e-3)
     overfit_count = 0
-    for epoch in tqdm(range(num_epochs), disable = not (show_progress)):
+    for _ in tqdm(range(num_epochs), disable = not (show_progress)):
         network.train()
         train_loss = 0
         for data_sub, tar_sub in training_loader:

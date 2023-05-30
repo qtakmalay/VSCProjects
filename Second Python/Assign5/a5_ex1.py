@@ -17,18 +17,18 @@ def training_loop(
     loss_function = torch.nn.MSELoss(reduction="mean")
     optimizer = torch.optim.SGD(network.parameters(), lr=0.1)
 
+    batch_size = 32
+
     train_losses = []
     eval_losses = []
-
-    batch_size = 32
 
     training_loader = DataLoader(train_data, shuffle=False, batch_size=batch_size, num_workers=0)
     eval_loader = DataLoader(eval_data, shuffle=False, batch_size=batch_size, num_workers=0)
     
     loss_function = torch.nn.MSELoss()
     optimizer = torch.optim.Adam(network.parameters(), lr=1e-3)
-    overfit_count = 0
-    for epoch in tqdm(range(num_epochs), disable = not (show_progress)):
+
+    for epoch in tqdm(range(num_epochs), disable = not show_progress):
         network.train()
         train_loss = 0
         for data_sub, tar_sub in training_loader:
@@ -45,13 +45,7 @@ def training_loop(
             
             train_loss += main_loss.item()
         train_loss /= len(training_loader)
-        if train_loss > train_losses[-1]:
-            train_losses.append(train_loss)
-        else:
-            if overfit_count == 3:
-                network.train(False)
-                break
-            else: count += 1  
+        train_losses.append(train_loss)
 
 
         network.eval()
@@ -74,6 +68,6 @@ if __name__ == "__main__":
     torch.random.manual_seed(0)
     train_data, eval_data = get_dataset()
     network = SimpleNetwork(32, 128, 1)
-    train_losses, eval_losses = training_loop(network, train_data, eval_data, num_epochs=10)
+    train_losses, eval_losses = training_loop(network, train_data, eval_data, num_epochs=10, show_progress=True)
     for epoch, (tl, el) in enumerate(zip(train_losses, eval_losses)):
         print(f"Epoch: {epoch} --- Train loss: {tl:7.2f} --- Eval loss: {el:7.2f}")
