@@ -12,7 +12,8 @@ def training_loop(
                     show_progress: bool = False
                     ) -> tuple[list, list]:
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    print(device)
+    network = network.to(device)  
+    
     loss_function = torch.nn.MSELoss(reduction="mean")
     optimizer = torch.optim.SGD(network.parameters(), lr=0.1)
 
@@ -23,15 +24,11 @@ def training_loop(
 
     training_loader = DataLoader(train_data, shuffle=False, batch_size=batch_size, num_workers=0)
     eval_loader = DataLoader(eval_data, shuffle=False, batch_size=batch_size, num_workers=0)
-    network = network.to(device)  
+    
     loss_function = torch.nn.MSELoss()
     optimizer = torch.optim.Adam(network.parameters(), lr=1e-3)
 
-    #device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    n_updates = training_loader.__len__()  # Number of updates to train for
-    update = 0  # Update counter
-    #update_progress_bar = tqdm(total=n_updates, desc="updates")
-    for epoch in tqdm(range(num_epochs), disable = False):
+    for epoch in tqdm(range(num_epochs), disable = not (show_progress)):
         network.train()
         train_loss = 0
         for data_sub, tar_sub in training_loader:
@@ -41,17 +38,12 @@ def training_loop(
             output = network(data_sub).squeeze()
             # Compute the main loss
             main_loss = loss_function(output, tar_sub)
-            
-            # Add L2 regularization
-            l2_term = torch.mean(torch.stack([(param ** 2).mean() for param in network.parameters()]))
-            # Compute final loss
-            loss = main_loss + l2_term * 1e-2
             # Compute the gradients
-            loss.backward()
+            main_loss.backward()
             # Preform the update
             optimizer.step()
             
-            train_loss += loss.item()
+            train_loss += main_loss.item()
         train_loss /= len(training_loader)
         train_losses.append(train_loss)
 
@@ -69,16 +61,7 @@ def training_loop(
             val_loss /= len(eval_loader)
             eval_losses.append(val_loss)
     
-    return train_losses, eval_losses
-               
-            
-
-
-# #    print(dataset)
-# dataset = get_dataset()
-
-# for idx,i in enumerate(dataset[0]):
-#     print("----------------------\n Len: ",len(dataset[0]), "Len2: ", len(dataset[1])," The train: ",i, "\nThe eval: ", dataset[1][idx],"\n----------------------")#, " \n data from index 1: ", i[1])
+    return train_losses, eval_losses          
 
 if __name__ == "__main__":
     torch.random.manual_seed(0)
