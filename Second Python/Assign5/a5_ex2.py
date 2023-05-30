@@ -2,8 +2,19 @@
 from a4_ex1 import SimpleNetwork
 from dataset import get_dataset
 from torch.utils.data import Dataset, DataLoader
-import torch
+import torch, matplotlib.pyplot as plt
 from tqdm import tqdm
+
+def plot_losses(train_losses, eval_losses):
+    epochs = range(1, len(train_losses) + 1)
+    plt.plot(epochs, train_losses, label='Training loss')
+    plt.plot(epochs, eval_losses, label='Evaluation loss')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    plt.legend()
+    plt.show()
+
+
 def training_loop(
                     network: torch.nn.Module,
                     train_data: torch.utils.data.Dataset,
@@ -19,7 +30,7 @@ def training_loop(
 
     train_losses = []
     eval_losses = []
-
+    best_eval_loss = float('inf')
     batch_size = 32
 
     training_loader = DataLoader(train_data, shuffle=False, batch_size=batch_size, num_workers=0)
@@ -45,13 +56,7 @@ def training_loop(
             
             train_loss += main_loss.item()
         train_loss /= len(training_loader)
-        if train_loss > train_losses[-1]:
-            train_losses.append(train_loss)
-        else:
-            if overfit_count == 3:
-                network.train(False)
-                break
-            else: count += 1  
+        train_losses.append(train_loss)
 
 
         network.eval()
@@ -67,13 +72,22 @@ def training_loop(
                 val_loss += main_loss.item()
             val_loss /= len(eval_loader)
             eval_losses.append(val_loss)
+            if val_loss < best_eval_loss:
+                best_eval_loss = val_loss
+                overfit_count = 0
+            else:
+                overfit_count += 1
+                if overfit_count >= 3:
+                    break
+            
     
     return train_losses, eval_losses          
 
 if __name__ == "__main__":
+    from a4_ex1 import SimpleNetwork
+    from dataset import get_dataset
     torch.random.manual_seed(0)
     train_data, eval_data = get_dataset()
     network = SimpleNetwork(32, 128, 1)
-    train_losses, eval_losses = training_loop(network, train_data, eval_data, num_epochs=10)
-    for epoch, (tl, el) in enumerate(zip(train_losses, eval_losses)):
-        print(f"Epoch: {epoch} --- Train loss: {tl:7.2f} --- Eval loss: {el:7.2f}")
+    train_losses, eval_losses = training_loop(network, train_data, eval_data, num_epochs=100, show_progress=True)
+    plot_losses(train_losses, eval_losses)

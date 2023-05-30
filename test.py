@@ -1,14 +1,25 @@
-# Creating a recursive function  
-def tower_of_hanoi(disks, source, auxiliary, target):  
-    if(disks == 1):  
-        print('Move disk 1 from rod {} to rod {}.'.format(source, target))  
-        return  
-    # function call itself  
-    tower_of_hanoi(disks - 1, source, target, auxiliary)  
-    print('Move disk {} from rod {} to rod {}.'.format(disks, source, target))  
-    tower_of_hanoi(disks - 1, auxiliary, source, target)  
-  
-  
-disks = int(input('Enter the number of disks: '))  
-# We are referring source as A, auxiliary as B, and target as C  
-tower_of_hanoi(disks, 'A', 'B', 'C')  # Calling the function  
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Suppose you have the following data
+x = np.array([1, 2, 3, 4, 5])
+y1 = np.array([1.1, 2.2, 3.3, 4.4, 5.5])  # First set of y-values
+y2 = np.array([5.5, 4.4, 3.3, 2.2, 1.1])  # Second set of y-values
+
+# Create a figure and an axis
+fig, ax1 = plt.subplots()
+
+# Plot the first set of data on ax1
+ax1.plot(x, y1, color='blue')
+ax1.set_ylabel('Y1', color='blue')
+ax1.tick_params('y', colors='blue')
+
+# Create a second y-axis that shares the same x-axis
+ax2 = ax1.twinx()
+
+# Plot the second set of data on ax2
+ax2.plot(x, y2, color='red')
+ax2.set_ylabel('Y2', color='red')
+ax2.tick_params('y', colors='red')
+
+plt.show()
