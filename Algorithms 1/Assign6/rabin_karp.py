@@ -2,7 +2,6 @@ class RabinKarp:
 
     def __init__(self):
         pass
-
     """
         This method uses the RabinKarp algorithm to search a given pattern in a given input text.
         @ param pattern - The string pattern that is searched in the text.
@@ -11,9 +10,28 @@ class RabinKarp:
         @ raises ValueError if pattern or text is None or empty.
     """
 
+
     def search(self, pattern, text):
-        # TODO
-        pass
+        if not pattern or not text:
+            raise ValueError
+
+        pattern_hash = 0
+        text_hash = 0
+        result = []
+
+        for i in range(len(pattern)):
+            pattern_hash = self.get_rolling_hash_value(pattern[:i+1], None, pattern_hash)
+            text_hash = self.get_rolling_hash_value(text[:i+1], None, text_hash)
+
+        for i in range(len(pattern), len(text)):
+            if pattern_hash == text_hash and text[i-len(pattern):i] == pattern:
+                result.append(i - len(pattern))
+            text_hash = self.get_rolling_hash_value(text[i-len(pattern)+1:i+1], text[i-len(pattern)], text_hash)
+
+        if pattern_hash == text_hash and text[-len(pattern):] == pattern:
+            result.append(len(text) - len(pattern))
+
+        return result if result else None
 
     """
          This method calculates the (rolling) hash code for a given character sequence. For the calculation use the 
@@ -26,5 +44,9 @@ class RabinKarp:
 
     @staticmethod
     def get_rolling_hash_value(sequence, last_character, previous_hash):
-        # TODO
-        pass
+        base = 29
+        if last_character:
+            previous_hash = (previous_hash - ord(last_character) * (base ** (len(sequence) - 1))) * base
+        else:
+            previous_hash *= base
+        return previous_hash + ord(sequence[-1])
