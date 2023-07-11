@@ -90,7 +90,7 @@ class TestDataset(Dataset):
         return len(self.pixelated_images)
 
     def __getitem__(self, idx):
-        return torch.from_numpy(self.pixelated_images[idx]), torch.from_numpy(self.known_arrays[idx])
+        return functional.to_tensor(self.pixelated_images[idx]), functional.to_tensor(self.known_arrays[idx])
 
 class RandomImagePixelationDataset(Dataset):
     
@@ -116,7 +116,9 @@ class RandomImagePixelationDataset(Dataset):
     
     def __getitem__(self, index):
         with Image.open(self.image_files[index]) as im:
+            #print("Shape of image before transform: ", np.array(im).shape)
             im = self.transform_chain(im)
+            #print("Shape of image after transform: ", np.array(im).shape)
             image = np.array(im, dtype=self.dtype)
 
         image_width = image.shape[-1]
@@ -135,16 +137,105 @@ class RandomImagePixelationDataset(Dataset):
         # height (and not throw an error in "prepare_image")
         x = rng.integers(image_width - width, endpoint=True)
         y = rng.integers(image_height - height, endpoint=True)
-        
         # Block size can be arbitrary again
         size = rng.integers(low=self.size_range[0], high=self.size_range[1], endpoint=True)
         
         pixelated_image, known_array, target_array = prepare_image(image, x, y, width, height, size)
-        return torch.from_numpy(pixelated_image), torch.from_numpy(known_array), torch.from_numpy(target_array), self.image_files[index]
+        return functional.to_tensor(pixelated_image), functional.to_tensor(known_array), functional.to_tensor(target_array), self.image_files[index]
     
     def __len__(self):
         return len(self.image_files)
+
+def stack_images(batch_as_list: list):
+    # Expected list elements are 4-tuples:
+    # (pixelated_image, known_array, target_array, image_file)
+    pixelated_images = [item[0] for item in batch_as_list]
+    known_arrays = [item[1] for item in batch_as_list]
+    target_arrays = [item[2] for item in batch_as_list]
+    image_files = [item[3] for item in batch_as_list]
     
+    # Directly stack all images, arrays, and targets since they have the same size
+    stacked_pixelated_images = torch.stack(pixelated_images, dim=0)
+    stacked_known_arrays = torch.stack(known_arrays, dim=0)
+    stacked_target_arrays = torch.stack(target_arrays, dim=0)
+
+    return stacked_pixelated_images, stacked_known_arrays, stacked_target_arrays, image_files
+
+
+def stack_with_padding(batch_as_list: list):
+    # Expected list elements are 4-tuples:
+    # (pixelated_image, known_array, target_array, image_file)
+    dtype_map = {
+    torch.float32: np.float32,
+    torch.float64: np.float64,
+    torch.bool: np.bool
+    # Add other dtype mappings as needed
+    }
+    n = len(batch_as_list)
+    pixelated_images_dtype = dtype_map[batch_as_list[0][0].dtype]
+    known_arrays_dtype = dtype_map[batch_as_list[0][1].dtype]
+    target_arrays_dtype = dtype_map[batch_as_list[0][2].dtype]
+    shapes = []
+    pixelated_images = []
+    known_arrays = []
+    target_arrays = []
+    image_files = []
+
+    for pixelated_image, known_array, target_array, image_file in batch_as_list:
+        shapes.append(pixelated_image.shape)  # Equal to known_array.shape
+        pixelated_images.append(pixelated_image)
+        known_arrays.append(known_array)
+        target_arrays.append(target_array)
+        image_files.append(image_file)
+
+    max_shape = np.max(np.stack(shapes, axis=0), axis=0)
+    stacked_pixelated_images = np.zeros(shape=(n, *max_shape), dtype=pixelated_images_dtype)
+    stacked_known_arrays = np.ones(shape=(n, *max_shape), dtype=known_arrays_dtype)
+    stacked_target_arrays = np.zeros(shape=(n, *max_shape), dtype=target_arrays_dtype)
+
+    for i in range(n):
+        channels, height, width = pixelated_images[i].shape
+        stacked_pixelated_images[i, :channels, :height, :width] = pixelated_images[i]
+        stacked_known_arrays[i, :channels, :height, :width] = known_arrays[i]
+        channels, height, width = target_arrays[i].shape
+        stacked_target_arrays[i, :channels, :height, :width] = target_arrays[i]
+
+    return (torch.from_numpy(stacked_pixelated_images),
+            torch.from_numpy(stacked_known_arrays),
+            torch.from_numpy(stacked_target_arrays),
+            image_files)
+
+
+# def stack_with_padding(batch_as_list: list):
+#     # Expected list elements are 4-tuples:
+#     # (pixelated_image, known_array, target_array, image_file)
+#     n = len(batch_as_list)
+#     pixelated_images_dtype = batch_as_list[0][0].dtype  # Same for every sample
+#     known_arrays_dtype = batch_as_list[0][1].dtype
+#     shapes = []
+#     pixelated_images = []
+#     known_arrays = []
+#     target_arrays = []
+#     image_files = []
+    
+#     for pixelated_image, known_array, target_array, image_file in batch_as_list:
+#         shapes.append(pixelated_image.shape)  # Equal to known_array.shape
+#         pixelated_images.append(pixelated_image)
+#         known_arrays.append(known_array)
+#         target_arrays.append(torch.from_numpy(target_array))
+#         image_files.append(image_file)
+    
+#     max_shape = np.max(np.stack(shapes, axis=0), axis=0)
+#     stacked_pixelated_images = np.zeros(shape=(n, *max_shape), dtype=pixelated_images_dtype)
+#     stacked_known_arrays = np.ones(shape=(n, *max_shape), dtype=known_arrays_dtype)
+    
+#     for i in range(n):
+#         channels, height, width = pixelated_images[i].shape
+#         stacked_pixelated_images[i, :channels, :height, :width] = pixelated_images[i]
+#         stacked_known_arrays[i, :channels, :height, :width] = known_arrays[i]
+    
+#     return torch.from_numpy(stacked_pixelated_images), torch.from_numpy(
+#         stacked_known_arrays), target_arrays, image_files
 
 # img_data = np.where(known_img_np[0], 255, 0).astype(np.uint8)
 

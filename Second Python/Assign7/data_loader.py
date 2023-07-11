@@ -7,9 +7,9 @@ import numpy as np
 import os, glob, torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
-import utils
 from torch.utils.data import random_split
-import torch.nn.functional as F
+
+import utils
 
 rng = np.random.default_rng()
 width = rng.integers(0, 32, size=1)
@@ -182,48 +182,94 @@ the assignment deadline approaches.
 #         return x
 
 
-class BasicCNN(nn.Module):
-    def __init__(self):
-        super(BasicCNN, self).__init__()
+# class BasicCNN(nn.Module):
+#     def __init__(self):
+#         super(BasicCNN, self).__init__()
 
-        # The architecture consists of 5 convolutional layers
-        # Each layer followed by a ReLU activation and Batch Normalization
-        self.layers = nn.Sequential(
-            nn.Conv2d(2, 32, kernel_size=3, stride=1, padding=1),
-            nn.ReLU(inplace=True),
-            nn.BatchNorm2d(32),
-            nn.Conv2d(32, 32, kernel_size=3, stride=1, padding=1),
-            nn.ReLU(inplace=True),
-            nn.BatchNorm2d(32),
-            nn.Conv2d(32, 32, kernel_size=3, stride=1, padding=1),
-            nn.ReLU(inplace=True),
-            nn.BatchNorm2d(32),
-            nn.Conv2d(32, 32, kernel_size=3, stride=1, padding=1),
-            nn.ReLU(inplace=True),
-            nn.BatchNorm2d(32),
-            nn.Conv2d(32, 1, kernel_size=3, stride=1, padding=1),
-            nn.ReLU(inplace=True)
+#         # The architecture consists of 5 convolutional layers
+#         # Each layer followed by a ReLU activation and Batch Normalization
+#         self.layers = nn.Sequential(
+#             nn.Conv2d(2, 32, kernel_size=3, stride=1, padding=1),
+#             nn.ReLU(inplace=True),
+#             nn.BatchNorm2d(32),
+#             nn.Conv2d(32, 32, kernel_size=3, stride=1, padding=1),
+#             nn.ReLU(inplace=True),
+#             nn.BatchNorm2d(32),
+#             nn.Conv2d(32, 32, kernel_size=3, stride=1, padding=1),
+#             nn.ReLU(inplace=True),
+#             nn.BatchNorm2d(32),
+#             nn.Conv2d(32, 32, kernel_size=3, stride=1, padding=1),
+#             nn.ReLU(inplace=True),
+#             nn.BatchNorm2d(32),
+#             nn.Conv2d(32, 1, kernel_size=3, stride=1, padding=1),
+#             nn.ReLU(inplace=True)
+#         )
+
+#     def forward(self, x):
+#         # Forward pass through the layers
+#         return self.layers(x)
+
+class SimpleCNN(torch.nn.Module):
+    
+    def __init__(self, n_in_channels: int = 1, n_hidden_layers: int = 3, n_kernels: int = 32, kernel_size: int = 7):
+        """Simple CNN with ``n_hidden_layers``, ``n_kernels`` and
+        ``kernel_size`` as hyperparameters."""
+        super().__init__()
+        
+        cnn = []
+        for i in range(n_hidden_layers):
+            cnn.append(torch.nn.Conv2d(
+                in_channels=n_in_channels,
+                out_channels=n_kernels,
+                kernel_size=kernel_size,
+                padding=kernel_size // 2
+            ))
+            cnn.append(torch.nn.ReLU())
+            n_in_channels = n_kernels
+        self.hidden_layers = torch.nn.Sequential(*cnn)
+        
+        self.output_layer = torch.nn.Conv2d(
+            in_channels=n_in_channels,
+            out_channels=1,
+            kernel_size=kernel_size,
+            padding=kernel_size // 2
         )
-
+    
     def forward(self, x):
-        # Forward pass through the layers
-        return self.layers(x)
+        """Apply CNN to input ``x`` of shape ``(N, n_channels, X, Y)``, where
+        ``N=n_samples`` and ``X``, ``Y`` are spatial dimensions."""
+        # Apply hidden layers: (N, n_in_channels, X, Y) -> (N, n_kernels, X, Y)
+        cnn_out = self.hidden_layers(x)
+        # Apply output layer: (N, n_kernels, X, Y) -> (N, 1, X, Y)
+        predictions = self.output_layer(cnn_out)
+        return predictions
+
 
 def collate_fn(batch):
-    # Separate the elements of the batch
-    pixelated_images, known_arrays, target_arrays, _ = zip(*batch)
+    # batch is a list of data points, each data point being a tuple of 
+    # (pixelated_image, known_array, target_array)
 
-    # Stack the pixelated_images and known_arrays along a new dimension
-    pixelated_images = torch.stack(pixelated_images, dim=0)
-    known_arrays = torch.stack(known_arrays, dim=0)
+    # unzip the batch to get separate lists of pixelated_images, known_arrays, and target_arrays
+    pixelated_images, known_arrays, target_arrays = zip(*batch)
+    
+    # compute maximum X and Y dimensions
+    max_X = max(img.shape[-2] for img in pixelated_images)
+    max_Y = max(img.shape[-1] for img in pixelated_images)
+    
+    # create zero tensors
+    batched_pixelated_images = torch.zeros(len(batch), 1, max_X, max_Y)
+    batched_known_arrays = torch.zeros(len(batch), 1, max_X, max_Y)
+    batched_target_arrays = torch.zeros(len(batch), 1, max_X, max_Y)
+    
+    # copy data into zero tensors
+    for i in range(len(batch)):
+        X, Y = pixelated_images[i].shape[-2], pixelated_images[i].shape[-1]
+        batched_pixelated_images[i, :, :X, :Y] = pixelated_images[i]
+        batched_known_arrays[i, :, :X, :Y] = known_arrays[i]
+        batched_target_arrays[i, :, :X, :Y] = target_arrays[i]
+    
+    return batched_pixelated_images, batched_known_arrays, batched_target_arrays
 
-    # Combine pixelated_images and known_arrays as channels
-    inputs = torch.cat((pixelated_images.unsqueeze(1), known_arrays.unsqueeze(1)), dim=1)
-
-    # Stack the target_arrays
-    targets = torch.stack(target_arrays, dim=0)
-
-    return inputs, targets
 
 
 
@@ -234,7 +280,9 @@ known_img_np = np.array([i for i in data["known_arrays"]])
 
 
 
-train_dataset = utils.RandomImagePixelationDataset(train_image_path, (0, int(64-width)), (0, int(64-width)), (4, 16), dtype=np.uint8)
+train_dataset = utils.RandomImagePixelationDataset(train_image_path, (4, 32), (4, 32), (4, 16), dtype=np.uint8)
+
+
 train_size = int(0.8 * len(train_dataset))
 valid_size = len(train_dataset) - train_size
 
@@ -248,17 +296,17 @@ test_loader = DataLoader(test_dataset,
                          num_workers=4)
 
 #train loader
-train_loader = DataLoader(train_dataset, batch_size=batch_size, collate_fn=collate_fn)
+train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=utils.stack_with_padding)
 
 #validation loader
 valid_loader = DataLoader(valid_dataset, 
                           batch_size=batch_size, 
-                          shuffle=False)
+                          shuffle=False, collate_fn=utils.stack_with_padding)
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
+print(device)
 # Initialize the model
-model = BasicCNN().to(device)
+model = SimpleCNN(2, 3, 32, 3).to(device)
 
 # Define the loss function and optimizer
 criterion = nn.MSELoss()
@@ -270,13 +318,13 @@ epochs = 10
 # Training loop
 for epoch in range(epochs):
     model.train()
-    for pixelated_images, known_arrays, target_arrays in train_loader:
+    for pixelated_images, known_arrays, target_arrays, _ in train_loader:
         # Combine pixelated_images and known_arrays as channels and move to device
         inputs = torch.cat((pixelated_images.unsqueeze(1), known_arrays.unsqueeze(1)), dim=1).to(device)
         targets = target_arrays.to(device)
 
         # Forward pass
-        outputs = model(inputs)
+        outputs = model(inputs.squeeze(2))
         loss = criterion(outputs, targets)
 
         # Backward pass and optimization
@@ -288,13 +336,13 @@ for epoch in range(epochs):
     model.eval()
     with torch.no_grad():
         total_loss = 0
-        for pixelated_images, known_arrays, target_arrays in valid_loader:
+        for pixelated_images, known_arrays, target_arrays, _ in valid_loader:
             # Combine pixelated_images and known_arrays as channels and move to device
             inputs = torch.cat((pixelated_images.unsqueeze(1), known_arrays.unsqueeze(1)), dim=1).to(device)
             targets = target_arrays.to(device)
 
             # Forward pass and loss computation
-            outputs = model(inputs)
+            outputs = model(inputs.squeeze(2))
             loss = criterion(outputs, targets)
 
             total_loss += loss.item()
