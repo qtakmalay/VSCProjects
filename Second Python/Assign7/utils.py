@@ -9,13 +9,15 @@ from torch.utils.data import Dataset
 import torchvision.transforms as transforms
 import torchvision.transforms.functional as functional
 
+import torch
+
 def prepare_image(image: np.ndarray, x: int, y: int, width: int, height: int, size: int) -> \
         tuple[np.ndarray, np.ndarray, np.ndarray]:
     if image.ndim < 2:
         # This is actually more general than the assignment specification
         raise ValueError("image must have shape (H, W)")
-    if width < 2 or height < 2 or size < 2:
-        raise ValueError("width/height/size must be >= 2")
+    #print(width, height, size)
+
     if x < 0 or (x + width) > image.shape[-1]:
         raise ValueError(f"x={x} and width={width} do not fit into the image width={image.shape[-1]}")
     if y < 0 or (y + height) > image.shape[-2]:
@@ -88,7 +90,7 @@ class TestDataset(Dataset):
         return len(self.pixelated_images)
 
     def __getitem__(self, idx):
-        return self.pixelated_images[idx], self.known_arrays[idx]
+        return torch.from_numpy(self.pixelated_images[idx]), torch.from_numpy(self.known_arrays[idx])
 
 class RandomImagePixelationDataset(Dataset):
     
@@ -138,7 +140,7 @@ class RandomImagePixelationDataset(Dataset):
         size = rng.integers(low=self.size_range[0], high=self.size_range[1], endpoint=True)
         
         pixelated_image, known_array, target_array = prepare_image(image, x, y, width, height, size)
-        return pixelated_image, known_array, target_array, self.image_files[index]
+        return torch.from_numpy(pixelated_image), torch.from_numpy(known_array), torch.from_numpy(target_array), self.image_files[index]
     
     def __len__(self):
         return len(self.image_files)
