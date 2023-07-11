@@ -36,3 +36,4 @@ def prepare_image(image: np.ndarray, x: int, y: int, width: int, height: int, si
                     known_array[y+size*i:y+size*i+size, x+size*j:x+size*j+size] = False
         
         return np.round(pixelated_image).astype(image.dtype), known_array, target_array
+

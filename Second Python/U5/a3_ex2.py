@@ -43,3 +43,23 @@ def pixelate(image: np.ndarray, x: int, y: int, width: int, height: int, size: i
         curr_x += size
     
     return image
+
+
+import matplotlib.pyplot as plt
+from torch.utils.data import DataLoader
+from a3_ex1 import RandomImagePixelationDataset
+ds = RandomImagePixelationDataset(
+r"C:\some\path\to\imgs",
+width_range=(50, 300),
+height_range=(50, 300),
+size_range=(10, 50)
+)
+dl = DataLoader(ds, batch_size=2, shuffle=False, collate_fn=prepare_image)
+for (stacked_pixelated_images, stacked_known_arrays, target_arrays) in dl:
+    fig, axes = plt.subplots(nrows=dl.batch_size, ncols=3)
+    for i in range(dl.batch_size):
+        axes[i, 0].imshow(stacked_pixelated_images[i][0], cmap="gray", vmin=0, vmax=255)
+        axes[i, 1].imshow(stacked_known_arrays[i][0], cmap="gray", vmin=0, vmax=1)
+        axes[i, 2].imshow(target_arrays[i][0], cmap="gray", vmin=0, vmax=255)
+    fig.tight_layout()
+    plt.show()

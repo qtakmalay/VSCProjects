@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 """
-Author -- Michael Widrich, Van Quoc Phuong Huynh, Andreas Schörgenhumer
-Contact -- schoergenhumer@ml.jku.at
-Date -- 03.08.2022
 
 ################################################################################
 

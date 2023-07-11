@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
 """
-Author -- Michael Widrich, Van Quoc Phuong Huynh, Andreas Schörgenhumer
-Contact -- schoergenhumer@ml.jku.at
-Date -- 03.08.2022
-
 ################################################################################
 
 The following copyright statement applies to all code within this file.
@@ -35,26 +31,8 @@ import numpy as np
 # program using the "subprocess" module with arguments ranging from 0 to 10
 # (inclusive) and print its output (no decoding necessary).
 
-with open("C:\\Users\\azatv\\VSCProjects\\9thUnit\\test.py", "w") as f:
-    f.write("""import argparse
+# Your code here #
 
-a = argparse.ArgumentParser()
-a.add_argument("int_number", type=int, help="some int num")
-args = a.parse_args()
-
-my_int_number3 = args.int_number
-print(args.int_number)""")
-# for i in np.arange(10):
-#     result = subprocess.Popen(["python", "c:\\Users\\azatv\\VSCProjects\\9thUnit\\test.py", "--int_number", i], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-#     outs, errs = result.communicate()
-#     #print(result.returncode)
-#     print(f"outs: {outs.decode('oem')}")
-#     print(f"errs: {errs.decode('oem')}")
-
-for i in range(11):
-    result = subprocess.run([sys.executable, "C:\\Users\\azatv\\VSCProjects\\9thUnit\\test.py", str(i)], capture_output=True)
-    print(result.stdout)
-    print(result.stderr)
 # Task 2
 #
 

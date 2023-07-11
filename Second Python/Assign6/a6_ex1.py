@@ -36,6 +36,7 @@ def random_augmented_image(
 if __name__ == "__main__":
     from matplotlib import pyplot as plt
     with Image.open("C:\\Users\\azatv\\VSCode\\VSCProjects\\Second Python\\Assign6\\08_example_image.jpg") as image:
+        print(image)
         transformed_image = random_augmented_image(image, image_size=300, seed=3)
         fig, axes = plt.subplots(1, 2)
         axes[0].imshow(image)

@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 """
-Author -- Michael Widrich, Andreas Schörgenhumer
-Contact -- schoergenhumer@ml.jku.at
-Date -- 02.08.2022
 
 ################################################################################
 
