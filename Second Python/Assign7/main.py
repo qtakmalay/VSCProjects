@@ -121,7 +121,7 @@ def main(
     optimizer = torch.optim.Adam(net.parameters(), lr=learning_rate, weight_decay=weight_decay)
     
     write_stats_at = 100  # Write status to TensorBoard every x updates
-    plot_at = 50  # Plot every x updates
+    plot_at = 1000  # Plot every x updates
     validate_at = 5000  # Evaluate model on validation set and check for new best model every x updates
     update = 0  # Current update counter
     best_validation_loss = np.inf  # Best validation loss so far
