@@ -26,19 +26,43 @@ os.environ['KMP_DUPLICATE_LIB_OK']='True'
 train_image_path = r'C:\Users\azatv\VSCode\VSCProjects\Second Python\Assign7\training'
 
 
+# def save_prediction_images(predictions, dir_path):
+#     """
+#     Saves the prediction images to the specified directory.
+#     """
+#     print("Saving prediction images...")
+#     for i, prediction in enumerate(predictions):
+#         # Reshape the flattened array back into its original 2D shape
+#         image_array = prediction.reshape((64, 64))
+
+#         # Create a new figure
+#         plt.figure()
+#         # Display the image
+#         plt.imshow(image_array, cmap='gray')
+
+#         # Generate a file path
+#         file_path = os.path.join(dir_path, f'prediction_{i}.png')
+
+#         # Save the figure to a file
+#         plt.savefig(file_path)
+
+#         # Close the figure to free up memory
+#         plt.close()
+
 def save_prediction_images(predictions, dir_path):
     print("Saving prediction images...")
     print(np.array(predictions).shape)
-    #print(predictions)
+
     for i, prediction in enumerate(predictions):
-        # Reshape the flattened array back into its original 2D shape
-                # Squeeze unnecessary dimensions
-        #print(predictions)
-        print(predictions)
-        prediction = prediction.squeeze()
-        
-        # Reshape the flattened array back into its original 2D shape
-        image_array = prediction.reshape((64, 64))
+        # Calculate square root of the prediction's size to get the dimensions of the square image
+        dim = int(np.sqrt(prediction.shape[0]))
+
+        # Try reshaping to a square image
+        try:
+            image_array = prediction.reshape((dim, dim))
+        except ValueError:
+            print(f"Couldn't reshape prediction {i}, skipping...")
+            continue
 
         # Create a new figure
         plt.figure()
@@ -54,49 +78,187 @@ def save_prediction_images(predictions, dir_path):
         # Close the figure to free up memory
         plt.close()
 
-def evaluate_model(model: torch.nn.Module, loader: torch.utils.data.DataLoader, loss_fn, device: torch.device, prediction_path: str):
-    """Function for evaluation of a model ``model`` on the data in
-    ``dataloader`` on device `device`, using the specified ``loss_fn`` loss
-    function."""
+# def evaluate_model(model: torch.nn.Module, loader: torch.utils.data.DataLoader, 
+#                    loss_fn, device: torch.device, prediction_path: str):
+#     """
+#     Function for evaluation of a model on the data in the dataloader.
+#     """
+#     model.eval()
+#     loss = 0
+#     predictions = []
+#     with torch.no_grad():
+#         for data in tqdm(loader, desc="Evaluating", position=0, leave=False):
+#             # Get a sample and move inputs and targets to device
+#             pixelated, known, targets = data
+#             pixelated = pixelated.to(device)
+#             known = known.to(device)
+#             targets = targets.to(device)
+
+#             # Get outputs of the specified model
+#             outputs = model(pixelated, known)
+
+#             # Apply mask to output and convert to the original pixel range
+#             outputs_masked = outputs * (1 - known)
+
+#             # Convert to uint8
+#             outputs_uint8 = (outputs_masked.cpu().numpy() * 255).astype(np.uint8)
+
+#             utils.plot_preds(outputs_uint8, r"C:\Users\azatv\VSCode\VSCProjects\Second Python\Assign7\results\preds")
+
+#             # Flatten and append to the predictions
+#             predictions.append(outputs_uint8.flatten())
+
+#             # Add the current loss
+#             loss += loss_fn(outputs, targets).item()
+
+#     loss /= len(loader)
+#     model.train()
+
+#     # Serialize and save the predictions
+#     serialize.serialize(predictions, prediction_path)
+
+#     return loss
+
+# def evaluate_model(model: torch.nn.Module, loader: torch.utils.data.DataLoader, 
+#                    loss_fn, device: torch.device, prediction_path: str):
+#     """
+#     Function for evaluation of a model on the data in the dataloader.
+#     """
+#     model.eval()
+#     loss = 0
+#     predictions = []
+#     with torch.no_grad():
+#         for data in tqdm(loader, desc="Evaluating", position=0, leave=False):
+#             # Get a sample and move inputs and targets to device
+#             pixelated, known, targets = data
+#             pixelated = pixelated.to(device)
+#             known = known.to(device)
+#             targets = targets.to(device)
+
+#             # Get outputs of the specified model
+#             outputs = model(pixelated, known)
+
+#             # Apply mask to output to obtain only the depixelated parts
+#             depixelated_output = outputs * (1 - known)
+
+#             # Convert to uint8
+#             depixelated_output_uint8 = (depixelated_output.cpu().numpy() * 255).astype(np.uint8)
+
+#             # Flatten and append to the predictions
+#             predictions.append(depixelated_output_uint8.flatten())
+
+#             # Calculate loss only on the depixelated parts
+#             loss += loss_fn(depixelated_output, targets * (1 - known)).item()
+
+#     loss /= len(loader)
+#     model.train()
+
+#     # Serialize and save the predictions
+#     serialize.serialize(predictions, prediction_path)
+
+#     return loss
+
+
+
+'''
+def evaluate_model(model: torch.nn.Module, loader: torch.utils.data.DataLoader, 
+                   loss_fn, device: torch.device, prediction_path: str):
+    """
+    Function for evaluation of a model on the data in the dataloader.
+    """
+    model.eval()
+    loss = 0
+    depixelated_outputs = []
+    locations = []
+    with torch.no_grad():
+        for data in tqdm(loader, desc="Evaluating", position=0, leave=False):
+            # Get a sample and move inputs and targets to device
+            pixelated, known, targets = data
+            pixelated = pixelated.to(device)
+            known = known.to(device).float()
+            targets = targets.to(device)
+
+            # Get outputs of the specified model
+            outputs = model(pixelated, known)
+
+            # Convert known back to boolean for the mask
+            known_bool = known.bool()
+
+            # Apply mask to output to obtain only the depixelated parts
+            depixelated_output = torch.masked_select(outputs, ~known_bool)
+
+            # Keep track of the depixelated outputs and their locations
+            depixelated_outputs.append((depixelated_output.cpu().numpy() * 255).astype(np.uint8))
+            locations.append(torch.nonzero(~known_bool, as_tuple=False).cpu().numpy())
+            # Calculate loss only on the depixelated parts
+            loss += loss_fn(depixelated_output, torch.masked_select(targets, ~known_bool)).item()
+
+    loss /= len(loader)
+    model.train()
+    for i, (depixelated, locs) in enumerate(zip(depixelated_outputs, locations)):
+        reconstructed = utils.reconstruct_image(depixelated, locs, pixelated.shape)
+        utils.plot_preds(reconstructed, os.path.join(prediction_path, f"{i:07d}.png"))
+
+    # Serialize and save the depixelated outputs and their locations
+    serialize(depixelated_outputs, prediction_path)
+
+    return loss
+'''
+
+
+def reconstruct_image(depixelated, locations, image_shape):
+    """Reconstructs a depixelated image from the given outputs and locations."""
+    batch_size, channels, height, width = image_shape
+    image = np.full((batch_size, height, width), None)  # Initialize to None
+    print(f"Reconstructing image with shape {image.shape}")
+    for pixel, loc in zip(depixelated, locations):
+        print(f"Placing pixel at location {loc} with value {pixel}")
+        # Ignore batch and channel indices
+        image[loc[0], loc[2], loc[3]] = pixel
+    # Turn remaining None values into white pixels
+    image[np.where(image == None)] = 255
+    return image
+
+
+def evaluate_model(model: torch.nn.Module, loader: torch.utils.data.DataLoader, 
+                   loss_fn, device: torch.device, prediction_path: str):
+    """
+    Function for evaluation of a model on the data in the dataloader.
+    """
     model.eval()
     loss = 0
     predictions = []
     with torch.no_grad():
         for data in tqdm(loader, desc="Evaluating", position=0, leave=False):
             # Get a sample and move inputs and targets to device
-            inputs1, inputs2, targets = data
-            inputs1 = inputs1.to(device)
-            inputs2 = inputs2.to(device)
+            pixelated, known, targets = data
+            pixelated = pixelated.to(device)
+            known = known.to(device)
             targets = targets.to(device)
             
-            # # Get outputs of the specified model
-            # outputs = model(inputs1, inputs2)
-            # #print((outputs.cpu().numpy() * 255).shape)
-            # outputs_uint8 = (outputs.cpu().numpy() * 255).astype(np.uint8).flatten()
-
-
-            outputs = model(inputs1, inputs2)
-    
-            # Apply mask to output
-            outputs_masked = outputs * (1 - inputs2) + inputs1 * inputs2
-            print(outputs_masked.shape)
-            # Convert to uint8
-            outputs_uint8 = (outputs_masked.cpu().numpy() * 255).astype(np.uint8).flatten()
+            # Get outputs of the specified model
+            outputs = model(pixelated, known)
+            known = known.bool()
+            #print(outputs.size())
+            outputs = (outputs.cpu().numpy() * 255).astype(np.uint8)
+            known = known.cpu().numpy()
             
-            #predictions.append([outputs_uint8])
+            depixelated_arr = outputs[~known]
+            #print(depixelated_arr.shape)
+            #utils.plot_preds(depixelated_arr, r"C:\Users\azatv\VSCode\VSCProjects\Second Python\Assign7\results\preds")
+            # Flatten and append to the predictions
+            predictions.append(depixelated_arr)
+            
+            # Calculate loss only on the depixelated parts
+            #loss += loss_fn(depixelated_output, targets).item()
 
-            predictions.append(outputs_uint8)
-            # Add the current loss
-            loss += loss_fn(outputs, targets).item()
-
-    loss /= len(loader)
+    #loss /= len(loader)
     model.train()
 
     # Serialize and save the predictions
-    #serialize.serialize(predictions, prediction_path)
+    serialize.serialize(predictions, prediction_path)
 
     return loss
-
 
 
 
@@ -160,7 +322,6 @@ def main(
         use_batch_normalization=True,
         num_classes=10
     )
-    print(net)
     net.to(device)
     
     # Get mse loss function
@@ -171,7 +332,7 @@ def main(
     
     write_stats_at = 100  # Write status to TensorBoard every x updates
     plot_at = 1000  # Plot every x updates
-    validate_at = 50  # Evaluate model on validation set and check for new best model every x updates
+    validate_at = 10  # Evaluate model on validation set and check for new best model every x updates
     update = 0  # Current update counter
     best_validation_loss = np.inf  # Best validation loss so far
     update_progress_bar = tqdm(total=n_updates, desc=f"loss: {np.nan:7.5f}", position=0)
@@ -188,11 +349,9 @@ def main(
             pixelated_image = pixelated_image.to(device)
             known_array = known_array.to(device)
             targets = targets.to(device)
-            print(known_array)
             optimizer.zero_grad()
 
             outputs = net(pixelated_image, known_array)
-            print(known_array.size())
             # Calculate loss, do backward pass and update weights
             loss = mse(outputs, targets)
             loss.backward()
@@ -212,7 +371,7 @@ def main(
             
             # Evaluate model on validation set
             if (update + 1) % validate_at == 0:
-                val_loss = evaluate_model(net, loader=val_loader, loss_fn=mse, device=device, prediction_path=r'C:\Users\azatv\VSCode\VSCProjects\Second Python\Assign7\results\targets.data')
+                val_loss = evaluate_model(net, loader=val_loader, loss_fn=mse, device=device, prediction_path=r'C:\Users\azatv\VSCode\VSCProjects\Second Python\Assign7\results\targets_debug.txt')
                 writer.add_scalar(tag="Loss/validation", scalar_value=val_loss, global_step=update)
                 # Save best model for early stopping
                 if val_loss < best_validation_loss:
@@ -269,8 +428,8 @@ if __name__ == "__main__":
     import json
     print("Finished Training!")
     # No need to wrap it with np.array()
-    ser_preds = serialize.deserialize(r"C:\Users\azatv\VSCode\VSCProjects\Second Python\Assign7\results\targets_debug.data")
-    save_prediction_images(ser_preds, r'C:\Users\azatv\VSCode\VSCProjects\Second Python\Assign7\results\preds')
+    #ser_preds = serialize.deserialize(r"C:\Users\azatv\VSCode\VSCProjects\Second Python\Assign7\results\targets_debug.data")
+    #save_prediction_images(ser_preds, r'C:\Users\azatv\VSCode\VSCProjects\Second Python\Assign7\results\preds')
     # parser = argparse.ArgumentParser()
     # parser.add_argument("config_file", type=str, help="Path to JSON config file.")
     # args = parser.parse_args()

@@ -176,6 +176,18 @@ def stack_with_padding(batch_as_list: list):
 
 
 
+def plot_preds(inputs, path):
+    """Plotting the inputs to file ``path``."""
+    os.makedirs(path, exist_ok=True)
+    
+    for i, input in enumerate(inputs):
+        fig, ax = plt.subplots()
+        #input = np.squeeze(input)  # remove single-dimensional entries from the shape of the array
+        ax.imshow(input, cmap="gray", interpolation="none")
+        ax.set_axis_off()
+        fig.savefig(os.path.join(path, f"{i:07d}.png"), dpi=100)
+        plt.close(fig)
+
 
 
 def plot(inputs, targets, predictions, path, update):

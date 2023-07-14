@@ -37,3 +37,32 @@ class DualInputCNN(nn.Module):
         predictions = self.combining_layers(combined)
 
         return predictions
+    
+
+with open(r"C:\Users\eljfe\OneDrive\Desktop\University\2 semester\p-i-p 2\FINAL\test_set.pkl", "rb") as f:
+    data = pkl.load(f)
+    pixelated_image_test_raw = data["pixelated_images"]
+    known_arr_test_raw = data["known_arrays"]
+
+combined_arr_test,known_arr_test = stack_with_padding_just_for_test(pixelated_image_test_raw,known_arr_test_raw,len(pixelated_image_test_raw))
+
+predictions_list = []
+print(f"All in all items to check: {len(combined_arr_test)}")
+def step_(combined,known,device):
+    with torch.no_grad():
+        combined = combined.to(device=device)
+        known = known.to(device=device)
+        prediction = network_final(combined.view(1,2,64,64))
+
+        actual_prediction = (torch.masked_select(prediction, known)).to(device=device)
+        actual_prediction = torch.clamp(actual_prediction, min=0, max=255)
+        prediction_mod = actual_prediction.detach().cpu().numpy().astype(dtype=np.uint8)
+        
+        predictions_list.append(prediction_mod.flatten())
+
+
+        
+for combined, known in tqdm(zip(combined_arr_test,known_arr_test)):
+    t = step_(combined,known,device,i)
+
+serial = serialize(predictions_list, r"C:\Users\eljfe\OneDrive\Desktop\University\2 semester\p-i-p 2\FINAL\predictions\prediction_0.txt")

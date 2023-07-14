@@ -23,7 +23,7 @@ batch_size = 64
 
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
-train_image_path = r'C:\Users\azatv\VSCode\VSCProjects\Second Python\Assign7\training'
+train_image_path = r'C:\Users\azatv\VSCode\VSCProjects\Second Python\Assign7\training_10'
 
 
 def evaluate_model(model: torch.nn.Module, loader: torch.utils.data.DataLoader, loss_fn, device: torch.device):
@@ -130,12 +130,25 @@ def main(
     # Save initial model as "best" model (will be overwritten later)
     saved_model_file = os.path.join(results_path, "best_model.pt")
     torch.save(net, saved_model_file)
+
+    pixelated_images = []
+    for i in range(len(training_set)):
+        pixelated_image, _, _ = training_set[i]
+        pixelated_images.append(pixelated_image)
+    pixelated_images = torch.stack(pixelated_images)
+
+    pixelated_image_mean = pixelated_images.mean()
+    pixelated_image_std_dev = pixelated_images.std()
+
     
     # Train until n_updates updates have been reached
     while update < n_updates:
         for data in train_loader:
             # Get next samples
             pixelated_image, known_array, targets = data
+
+            pixelated_image = (pixelated_image - pixelated_image_mean) / pixelated_image_std_dev
+
             pixelated_image = pixelated_image.to(device)
             known_array = known_array.to(device)
             targets = targets.to(device)
@@ -144,7 +157,10 @@ def main(
             optimizer.zero_grad()
             
             # Get outputs of our network
-            outputs = net(pixelated_image, known_array)
+            outputs = net(pixelated_image, known_array.float())
+
+            outputs = outputs * pixelated_image_std_dev + pixelated_image_mean
+
             
             # Calculate loss, do backward pass and update weights
             loss = mse(outputs, targets)
@@ -161,7 +177,8 @@ def main(
             # Plot output
             if (update + 1) % plot_at == 0:
                 plot(pixelated_image.detach().cpu().numpy(), targets.detach().cpu().numpy(), outputs.detach().cpu().numpy(),
-                     plot_path, update)
+                                    plot_path, update)
+
             
             # Evaluate model on validation set
             if (update + 1) % validate_at == 0:
@@ -181,6 +198,9 @@ def main(
             update += 1
             if update >= n_updates:
                 break
+
+
+
     
     update_progress_bar.close()
     writer.close()

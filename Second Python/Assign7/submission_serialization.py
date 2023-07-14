@@ -15,7 +15,7 @@ def serialize(submission: list[np.ndarray], path_or_filehandle):
     # --> len_pi = 255 (the number 256 (literally) would require 2 bytes (9 bits)).
     max_len = max(len(p) for p in submission)
     max_len_bytes = math.ceil(math.log2(max_len) / 8)
-    
+    #print(submission)
     def write(f):
         # Write the number of bytes that are needed to store the length of each prediction array as a fixed unsigned
         # integer with 8 bits. This means that the maximum supported number of bytes per length entry is 2^8 - 1 = 255,
