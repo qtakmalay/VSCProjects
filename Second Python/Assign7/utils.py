@@ -173,7 +173,38 @@ def stack_with_padding(batch_as_list: list):
     #         torch.from_numpy(stacked_known_arrays),
     #         torch.from_numpy(stacked_target_arrays))
 
+def stack_with_padding_for_test(batch_as_list: list):
 
+    dtype_map = {
+        torch.float32: np.float32,
+        torch.float64: np.float64,
+        torch.bool: np.bool
+        # Add other dtype mappings as needed
+    }
+    n = len(batch_as_list)
+    pixelated_images_dtype = dtype_map[batch_as_list[0][0].dtype]
+    known_arrays_dtype = dtype_map[batch_as_list[0][1].dtype]
+    shapes = []
+    pixelated_images = []
+    known_arrays = []
+
+
+    for pixelated_image, known_array, target_array in batch_as_list:
+        shapes.append(pixelated_image.shape)  # Equal to known_array.shape
+        pixelated_images.append(pixelated_image)
+        known_arrays.append(known_array)
+
+
+    max_shape = np.max(np.stack(shapes, axis=0), axis=0)
+    stacked_pixelated_images = np.zeros(shape=(n, *max_shape), dtype=pixelated_images_dtype)
+    stacked_known_arrays = np.ones(shape=(n, *max_shape), dtype=known_arrays_dtype)
+
+    for i in range(n):
+        channels, height, width = pixelated_images[i].shape
+        stacked_pixelated_images[i, :channels, :height, :width] = pixelated_images[i]
+        stacked_known_arrays[i, :channels, :height, :width] = known_arrays[i]
+    return torch.from_numpy(stacked_pixelated_images), torch.from_numpy(stacked_known_arrays)
+ 
 
 
 def plot_preds(inputs, path):
@@ -432,22 +463,22 @@ class SimpleCNN(nn.Module):
 #    def __len__(self):
 #       return len(self.list_files)
    
-# class TestDataset(torch.utils.data.Dataset):
-#     def __init__(self, pixelated_data, known_data, transform=None):
-#         self.pixelated_data = pixelated_data
-#         self.known_data = known_data
-#         self.transform = transform
+class TestDataset(torch.utils.data.Dataset):
+    def __init__(self, pixelated_data, known_data, transform=None):
+        self.pixelated_data = pixelated_data
+        self.known_data = known_data
+        self.transform = transform
 
-#     def __len__(self):
-#         return len(self.pixelated_data)
+    def __len__(self):
+        return len(self.pixelated_data)
 
-#     def __getitem__(self, idx):
-#         pixelated_img = self.pixelated_data[idx]
-#         known_img = self.known_data[idx]
-#         if self.transform:
-#             pixelated_img = self.transform(pixelated_img)
-#             known_img = self.transform(known_img)
-#         return pixelated_img, known_img
+    def __getitem__(self, idx):
+        pixelated_img = self.pixelated_data[idx]
+        known_img = self.known_data[idx]
+        if self.transform:
+            pixelated_img = self.transform(pixelated_img)
+            known_img = self.transform(known_img)
+        return pixelated_img, known_img
 
 # # Training loop
 # for epoch in range(epochs):
@@ -720,16 +751,16 @@ class SimpleCNN(nn.Module):
 #     return stacked_sequences, stacked_labels
 
 
-class TestDataset(Dataset):
-    def __init__(self, pixelated_images, known_arrays):
-        self.pixelated_images = pixelated_images
-        self.known_arrays = known_arrays
+# class TestDataset(Dataset):
+#     def __init__(self, pixelated_images, known_arrays):
+#         self.pixelated_images = pixelated_images
+#         self.known_arrays = known_arrays
 
-    def __len__(self):
-        return len(self.pixelated_images)
+#     def __len__(self):
+#         return len(self.pixelated_images)
 
-    def __getitem__(self, idx):
-        return functional.to_tensor(self.pixelated_images[idx]), functional.to_tensor(self.known_arrays[idx])
+#     def __getitem__(self, idx):
+#         return functional.to_tensor(self.pixelated_images[idx]), functional.to_tensor(self.known_arrays[idx])
 
 
 def to_grayscale(pil_image: np.ndarray) -> np.ndarray:
