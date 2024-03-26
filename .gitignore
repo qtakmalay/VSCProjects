@@ -1,24 +1,50 @@
-Second Python/U2/input
-Second Python/U2/output
 Materials P1/
-Second Python/U3-5/04_images
-Second Python/U5/05_images
-Algorithms 1/12148222_Vakhitov (2).zip
-Algorithms 1/12148222_Vakhitov_3.zip
-Algorithms 1/12148222_Vakhitov_4.zip
 ScanScoreSctipts
 saved_meth.cpp
-Second Python/Assign7/training.zip
-Second Python/Assign7/test_set_ones.pkl
 Second Python/Assign7/training
 Second Python/Assign7/trainextra
 Second Python/Assign7/results
 Second Python/Assign7/training_10
-Second Python/Assign7/test_set_ones.pkl
 Second Python/Assign7/materials
 Second Python/Assign7/inpainting-project
-Second Python/Assign7/Generation_cur.zip
-Second Python/Assign7/model_target.zip
 RCE
-Second Python-Assign7/k12148222.zip
 ScanScoreSctipts
+CNNAdv
+
+# Unwated formats
+*.pdf
+*.docx
+*.doc
+*.pptx
+*.ppt
+*.xlsx
+*.xls
+*.csv
+*.txt
+*.zip
+*.rar
+*.7z
+*.tar
+*.gz
+*.tar.gz
+*.tgz
+*.tar.bz2
+*.tbz2
+*.tar.xz
+*.txz
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.tiff
+*.tif
+*.svg
+*.eps
+*.pyc
+*.pkl
+*.pt
+*.tree
+*.hash
+*.bin
+*.dat
