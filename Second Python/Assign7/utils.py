@@ -220,6 +220,7 @@ class DualInputCNN(nn.Module):
             kernel_size: int = 3,
             activation_function: nn.Module = nn.ReLU()
     ):
+
         super().__init__()
         self.input_channels = input_channels
         self.hidden_channels = hidden_channels
