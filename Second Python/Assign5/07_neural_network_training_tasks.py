@@ -18,7 +18,7 @@ authors.
 Tasks for self-study. Try to solve these tasks on your own and compare your
 solutions to the provided solutions file.
 """
-
+import sys
 import matplotlib.pyplot as plt
 import torch
 
@@ -65,8 +65,9 @@ def sample_generator():
 weights = torch.nn.Parameter(torch.rand(size=(7, 2), dtype=torch.float32))
 
 # Your code here #
-
-
+print(weights)
+print(weights.backward())
+exit()
 #
 # Task 2
 #
